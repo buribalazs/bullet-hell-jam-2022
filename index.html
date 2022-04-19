@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
+    <style>
+        body{background-color: black;}
+        #sprites{display: none;}
+    </style>
+</head>
+<body>
+    <img id="sprites" src="sprites.png">
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script>
+        (async () => {
+            const ctx = document.getElementById('canvas').getContext('2d')
+            const sprites = document.getElementById('sprites')
+            await new Promise(r => sprites.addEventListener('load', r))
+            
+            ctx.drawImage(sprites, 16, 16, 16,16, 100, 100, 16, 16)
+            ctx.drawImage(sprites, 16, 16, 16,16, 105, 100, 16, 16)
+        })()
+    </script>
+</body>
+</html>
