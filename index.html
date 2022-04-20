@@ -1,35 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
     <style>
-        body{background-color: black;}
-        #sprites{display: none;}
+        html,
+        body {
+            background-color: black;
+            margin: 0;
+            height: 100%;
+        }
+
+        #sprites {
+            display: none;
+        }
+
+        .wrap {
+            display: grid;
+            place-items: center;
+            height: 100%;
+        }
+
+        canvas {
+            border: 1px solid white;
+        }
     </style>
 </head>
+
 <body>
     <img id="sprites" src="sprites.png">
-    <canvas id="canvas" width="600" height="600"></canvas>
-    <script>
+    <div class="wrap">
+        <canvas id="canvas" width="600" height="600"></canvas>
+    </div>
+    <script type="module">
+        import { clamp } from './util.js'
+        import { game } from './game.js'
         (async () => {
-            const ctx = document.getElementById('canvas').getContext('2d')
+            const canvas = document.getElementById('canvas')
+            const ctx = canvas.getContext('2d')
             const sprites = document.getElementById('sprites')
-            if(!sprites.complete) await new Promise(r => sprites.addEventListener('load', r))
+            if (!sprites.complete) await new Promise(r => sprites.addEventListener('load', r));
+            let mousePos = { x: 0, y: 0 }
+            let previousMousePos = { x: 0, y: 0 }
+            let bbox = canvas.getBoundingClientRect()
+            window.addEventListener('resize', e => bbox = canvas.getBoundingClientRect())
             
+            document.body.addEventListener('mousemove', e => { 
+                mousePos = { 
+                    x: clamp(e.clientX - bbox.left, 0, 600), 
+                    y: clamp(e.clientY - bbox.top,0, 600),
+                } 
+            })
+            let mousedown = false
+            let wheeldelta = 0
+            document.body.addEventListener('mousedown', () => mousedown = true)
+            document.body.addEventListener('mouseup', () => mousedown = false)
+            document.body.addEventListener('mouseleave', () => mousedown = false)
+            canvas.addEventListener('wheel', e => {
+                e.preventDefault()
+                wheeldelta = -e.deltaY
+            })
+
             let _t = performance.now()
-            function loop(){
+            function loop() {
                 const dt = performance.now() - _t
                 _t = performance.now()
-                ctx.clearRect(0, 0, 600, 600)
-                ctx.strokeStyle = 'white';
-                ctx.beginPath();
-                for (let i = 0; i < 10000; i++) {
-                    ctx.moveTo(i%10 + _t*0.1%500, Math.floor(i/10));
-                    ctx.lineTo(i%10 + _t*0.1%500, Math.floor(i/10) + 100);
-                }
-                ctx.stroke();
+                game(
+                    ctx, 
+                    dt, 
+                    previousMousePos, 
+                    mousePos,
+                    mousedown,
+                    wheeldelta,
+                )
+                wheeldelta = 0
+                previousMousePos = mousePos
                 requestAnimationFrame(loop)
             }
             loop()
@@ -37,4 +84,5 @@
         })()
     </script>
 </body>
+
 </html>
