@@ -11,24 +11,25 @@
 </head>
 <body>
     <img id="sprites" src="sprites.png">
-    <canvas id="canvas" width="500" height="500"></canvas>
+    <canvas id="canvas" width="600" height="600"></canvas>
     <script>
         (async () => {
             const ctx = document.getElementById('canvas').getContext('2d')
             const sprites = document.getElementById('sprites')
-            await new Promise(r => sprites.addEventListener('load', r))
+            if(!sprites.complete) await new Promise(r => sprites.addEventListener('load', r))
             
             let _t = performance.now()
             function loop(){
                 const dt = performance.now() - _t
                 _t = performance.now()
-                ctx.clearRect(0, 0, 500, 500)
-                for (let i = 0; i < 10; i++) {
-                    for (let j = 0; j < 100; j++) {
-                        ctx.drawImage(sprites, 16, 16, 16,16, i*40 + _t * 0.01, j*4, 16, 16)
-                    }    
+                ctx.clearRect(0, 0, 600, 600)
+                ctx.strokeStyle = 'white';
+                ctx.beginPath();
+                for (let i = 0; i < 10000; i++) {
+                    ctx.moveTo(i%10 + _t*0.1%500, Math.floor(i/10));
+                    ctx.lineTo(i%10 + _t*0.1%500, Math.floor(i/10) + 100);
                 }
-
+                ctx.stroke();
                 requestAnimationFrame(loop)
             }
             loop()
